@@ -1,4 +1,5 @@
 (* Dan Grossman, Coursera PL, HW2 Provided Code *)
+(* Toby Burns, Extended to full solution*)
 
 (* if you use this function to compare two strings (returns true if the same
    string), then you avoid several of the functions in problem 1 having
@@ -7,6 +8,29 @@ fun same_string(s1 : string, s2 : string) =
     s1 = s2
 
 (* put your solutions for problem 1 here *)
+(* a tail recursive *)
+fun all_except_option (x, ys) =
+   let
+      fun all_except (ys, ans) =
+         case ys 
+         of [] => NONE
+         | y::ys => if same_string (x, y) 
+                     then SOME (ans @ ys)
+                     else all_except (ys, y::ans)
+   in
+      all_except(ys, [])
+   end
+
+(* b *)
+fun get_substitutions1 (xs, y) =
+   case xs
+   of [] => []
+   | x::xs => case (all_except_option(y, x)) 
+               of SOME z => z @ get_substitutions1(xs, y)
+               | NONE => get_substitutions1(xs, y)
+
+
+
 
 (* you may assume that Num is always used with values 2, 3, ..., 10
    though it will not really come up *)
