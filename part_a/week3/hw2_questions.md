@@ -43,3 +43,17 @@
     * If the player draws and the card-list is (already) empty, the game is over. Else if drawing   causes the sum of the held-cards to exceed the goal, the game is over (after drawing). Else play continues with a larger held-cards and a smaller card-list.
 
     Sample solution for (g) is under 20 lines.
+
+3. Challenge Problems:
+   
+    (a) Write score_challenge and officiate_challenge to be like their non-challenge counterparts except each ace can have a value of 1 or 11 and score_challenge should always return the least (i.e., best) possible score. (Note the game-ends-if-sum-exceeds-goal rule should apply only if there is no sum that is less than or equal to the goal.) Hint: This is easier than you might think.
+
+    (b) Write careful_player, which takes a card-list and a goal and returns a move-list such that calling officiate with the card-list, the goal, and the move-list has this behavior:
+    * The value of the held cards never exceeds the goal.
+    * A card is drawn whenever the goal is more than 10 greater than the value of the held cards. As a detail, you should (attempt to) draw, even if no cards remain in the card-list.
+    * If a score of 0 is reached, there must be no more moves.
+    * If it is possible to reach a score of 0 by discarding a card followed by drawing a card, then this must be done. Note careful_player will have to look ahead to the next card, which in many card games is considered “cheating.” Also note that the previous requirement takes precedence: There must be no more moves after a score of 0 is reached even if there is another way to get back to 0. 
+
+    Notes:
+    * There may be more than one result that meets the requirements above. The autograder should work for any correct strategy — it checks that the result meets the requirements.
+    * This problem is not a continuation of problem 3(a). In this problem, all aces have a value of 11.
