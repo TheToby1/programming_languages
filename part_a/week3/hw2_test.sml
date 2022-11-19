@@ -38,10 +38,11 @@ val test9 = sum_cards [(Clubs, Num 2),(Clubs, Num 2)] = 4
 val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
 
 val test11 = officiate ([(Hearts, Num 2),(Clubs, Num 4)],[Draw], 15) = 6
-val test11_big = officiate ([(Hearts, Num 2),(Clubs, Num 9),(Spades, Num 4),(Diamonds, Ace),(Clubs, Num 2),(Diamonds, Num 7),(Hearts, King)],[Draw, Draw, Draw, Draw, Draw, Discard (Clubs, Num 9), Draw], 26) = 0
+val test11_big = officiate ([(Hearts, Num 2),(Clubs, Num 9),(Spades, Num 4),(Diamonds, Ace),(Clubs, Num 2),(Diamonds, Num 7),(Hearts, King)],[Draw, Draw, Draw, Discard (Clubs, Num 9), Draw, Draw, Draw], 26) = 0
 val test11_early_end = officiate ([(Hearts, Num 2),(Clubs, Num 9)],[Draw, Draw, Draw, Draw, Draw, Draw, Draw, Draw], 10) = 3
 val test11_early_end_color = officiate ([(Hearts, Num 2),(Diamonds, Num 9)],[Draw, Draw, Draw, Draw, Draw, Draw, Draw, Draw], 10) = 1
-val test11_illegal = (officiate ([(Hearts, Num 2),(Diamonds, Num 9)],[Draw, Draw, Discard (Clubs, Num 9), Draw, Draw, Draw, Draw, Draw, Draw], 10) handle IllegalMove => ~1) = ~1
+val test11_early_end_overdraw = officiate ([(Hearts, Num 2),(Clubs, Num 9),(Spades, Num 4),(Diamonds, Ace),(Clubs, Num 2),(Diamonds, Num 7),(Hearts, King)],[Draw, Draw, Draw, Draw, Draw, Discard (Clubs, Num 9), Draw], 26) = 6
+val test11_illegal = (officiate ([(Hearts, Num 2),(Diamonds, Num 9)],[Draw, Draw, Discard (Clubs, Num 9), Draw, Draw, Draw, Draw, Draw, Draw], 20) handle IllegalMove => ~1) = ~1
 
 (* val test12 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],
                         [Draw,Draw,Draw,Draw,Draw],

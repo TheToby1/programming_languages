@@ -171,14 +171,16 @@ fun score (hand, goal) =
       | (false, false) => (goal - sumHand)
    end *)
 
+(* g *)
 fun officiate (cards, moves, goal) =
    let
-      fun traverse_moves gameState =
-         case gameState
-         of (_, [], hand) => hand
-         | ([], Draw::_, hand) => hand
-         | (cs, (Discard c)::moves, hand) => traverse_moves(cs, moves, remove_card(hand, c, IllegalMove))
-         | (c::cs, Draw::moves, hand) => traverse_moves(cs, moves, c::hand)
+      fun traverse_moves (cards, moves, hand) =
+         case (cards, moves, hand, sum_cards hand > goal)
+         of (_, _, hand, true) => hand
+         | (_, [], hand, _) => hand
+         | ([], Draw::_, hand, _) => hand
+         | (cs, (Discard c)::moves, hand, _) => traverse_moves(cs, moves, remove_card(hand, c, IllegalMove))
+         | (c::cs, Draw::moves, hand, _) => traverse_moves(cs, moves, c::hand)
    in
       score(traverse_moves(cards, moves, []), goal)
    end
