@@ -43,14 +43,20 @@ val test11_early_end = officiate ([(Hearts, Num 2),(Clubs, Num 9)],[Draw, Draw, 
 val test11_early_end_color = officiate ([(Hearts, Num 2),(Diamonds, Num 9)],[Draw, Draw, Draw, Draw, Draw, Draw, Draw, Draw], 10) = 1
 val test11_early_end_overdraw = officiate ([(Hearts, Num 2),(Clubs, Num 9),(Spades, Num 4),(Diamonds, Ace),(Clubs, Num 2),(Diamonds, Num 7),(Hearts, King)],[Draw, Draw, Draw, Draw, Draw, Discard (Clubs, Num 9), Draw], 26) = 6
 val test11_illegal = (officiate ([(Hearts, Num 2),(Diamonds, Num 9)],[Draw, Draw, Discard (Clubs, Num 9), Draw, Draw, Draw, Draw, Draw, Draw], 20) handle IllegalMove => ~1) = ~1
-
-(* val test12 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],
-                        [Draw,Draw,Draw,Draw,Draw],
-                        42)
-             = 3
-
+val test12 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)], [Draw,Draw,Draw,Draw,Draw], 42) = 3
 val test13 = ((officiate([(Clubs,Jack),(Spades,Num(8))],
                          [Draw,Discard(Hearts,Jack)],
                          42);
                false) 
-              handle IllegalMove => true) *)
+              handle IllegalMove => true) 
+
+
+val testChallenge_a1 = officiate_challenge ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)], [Draw,Draw,Draw,Draw,Draw], 40) = 3
+val testChallenge_a2 = officiate_challenge ([(Clubs,Ace),(Hearts,Ace),(Clubs,Ace),(Spades,Ace)], [Draw,Draw,Draw,Draw,Draw], 40) = 6
+
+val test_card_of_value = get_card_of_value ([(Spades,Num 7),(Hearts,King),(Clubs,Ace),(Diamonds,Num 2)], 10) = (Hearts,King)
+val testChallenge_b1 = careful_player ([(Spades,Num 7),(Hearts,King),(Clubs,Ace),(Diamonds,Num 2)], 18) = [Draw, Draw, Discard (Hearts, King), Draw]
+val testChallenge_b2 = careful_player ([(Spades,Num 7)], 11) = [Draw]
+val testChallenge_b3 = careful_player ([(Diamonds,Num 2),(Clubs,Ace)], 11) = [Draw, Discard (Diamonds,Num 2), Draw]
+val testChallenge_b4 = careful_player ([(Diamonds,Num 2)], 15) = [Draw, Draw]
+

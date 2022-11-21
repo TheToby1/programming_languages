@@ -67,19 +67,24 @@ fun get_substitutions2 (xs, y) =
       build_answer(firstName :: get_substitutions2(substitutions, firstName))
    end *)
 
+fun rev toReverse = 
+   let
+      fun rev_tail (toReverse, reverse) =
+         case toReverse
+         of [] => reverse
+         | head::rest => rev_tail (rest, head::reverse)
+   in
+      rev_tail (toReverse, [])
+   end
+
 (* d tail recursive using cons and just reverse at the end *)
 fun similar_names (substitutions, fullName) = 
    let
-      fun rev (toReverse, reverse) = 
-         case toReverse
-         of [] => reverse
-         | head::rest => rev(rest, head::reverse)
-
       val {first=firstName, middle=middleName, last=lastName} = fullName
 
       fun build_answer(validFirstNames, ans) =
          case validFirstNames
-         of [] => rev(ans, [])
+         of [] => rev ans
          | x::xs => build_answer(xs, {first=x, middle=middleName, last=lastName}::ans)
    in
       build_answer(firstName::get_substitutions2(substitutions, firstName), [])
@@ -175,12 +180,90 @@ fun score (hand, goal) =
 fun officiate (cards, moves, goal) =
    let
       fun traverse_moves (cards, moves, hand) =
-         case (cards, moves, hand, sum_cards hand > goal)
-         of (_, _, hand, true) => hand
-         | (_, [], hand, _) => hand
-         | ([], Draw::_, hand, _) => hand
-         | (cs, (Discard c)::moves, hand, _) => traverse_moves(cs, moves, remove_card(hand, c, IllegalMove))
-         | (c::cs, Draw::moves, hand, _) => traverse_moves(cs, moves, c::hand)
+         case (cards, moves, goal < sum_cards hand)
+         of (_, _, true) => hand
+         | (_, [], _) => hand
+         | ([], Draw::_, _) => hand
+         | (cs, (Discard c)::moves, _) => traverse_moves(cs, moves, remove_card(hand, c, IllegalMove))
+         | (c::cs, Draw::moves, _) => traverse_moves(cs, moves, c::hand)
    in
       score(traverse_moves(cards, moves, []), goal)
+   end
+
+(* 13 *)
+(* a *)
+
+fun count_rank (cs, rankToFind) = 
+   let
+      fun count_rank_tail (cs, ans) =
+         case cs 
+         of [] => ans
+         | (curSuit, curRank)::cs' => if rankToFind = curRank 
+                                       then count_rank_tail (cs', 1 + ans)
+                                       else count_rank_tail (cs', ans)
+   in
+      count_rank_tail(cs, 0)
+   end
+
+(* I feel like this isn't the nicest way of doing this, but I didn't want to spend too much time *)
+fun score_challenge (hand, goal) =
+   let
+      fun get_best_sum_hand (sumHand, aces) =
+      (* Keeps checking down by 10 until within 2 of the goal, this is the crossover point of the score being worse by removing 10 more *)
+         case (aces, sumHand < goal + 2)
+         of (0, _) => sumHand
+         | (_, true) => sumHand
+         | (_, false) => get_best_sum_hand(sumHand - 10, aces - 1)
+      val aces = count_rank (hand, Ace)
+      val sumHand = get_best_sum_hand (sum_cards hand, aces)
+      val prelim = if sumHand > goal
+            then 3 * (sumHand - goal)
+            else goal - sumHand
+   in
+      if all_same_color hand
+      then prelim div 2
+      else prelim
+   end
+
+fun officiate_challenge (cards, moves, goal) =
+   let
+      fun traverse_moves (cards, moves, hand) =
+         (* I could make a sum_cards for ace low but I went for speed of coding not niceness of code *)
+         case (cards, moves, goal < sum_cards hand - (count_rank (hand, Ace) * 10))
+         of (_, _, true) => hand
+         | (_, [], _) => hand
+         | ([], Draw::_, _) => hand
+         | (cs, (Discard c)::moves, _) => traverse_moves(cs, moves, remove_card(hand, c, IllegalMove))
+         | (c::cs, Draw::moves, _) => traverse_moves(cs, moves, c::hand)
+   in
+      score_challenge (traverse_moves(cards, moves, []), goal)
+   end
+
+
+(* b *)
+exception DoesNotExist
+fun get_card_of_value (cs, valueToFind) =
+         case cs 
+         of [] => raise DoesNotExist
+         | c::cs' => if (card_value c) = valueToFind
+            then c
+            else get_card_of_value (cs', valueToFind)
+
+fun careful_player (cards, goal) =
+   let 
+      fun generate_moves (cards, moves, hand, curGoal) =
+         case (cards, 10 < curGoal, curGoal = 0)
+         of (_, _, true) => rev moves
+         | ([], true, _) => rev (Draw::moves)
+         | ([], false, _) => rev moves
+         | (c::cs, true, _) => generate_moves (cs, Draw::moves, c::hand, curGoal - card_value c)
+         (* This is a little weird, I could have done it better *)
+         | (c::_, false, _) => if curGoal < card_value c
+                                 then 
+                                    case (get_card_of_value (hand, card_value c - curGoal) handle DoesNotExist => (Hearts, Num 0))
+                                    of (_, Num 0) => rev moves
+                                    | oldCard => rev (Draw::((Discard oldCard)::moves))
+                                 else rev moves
+   in
+      generate_moves (cards, [], [], goal)
    end
