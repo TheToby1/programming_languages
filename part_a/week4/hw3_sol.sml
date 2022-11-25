@@ -137,7 +137,9 @@ fun match (v, p) =
 	| (Const x, ConstP y) => if x = y
 								then SOME []
 								else NONE
-	| (Tuple vs, TupleP ps) => all_answers match (ListPair.zip (vs, ps))
+	| (Tuple vs, TupleP ps) => if List.length vs = List.length ps
+								then all_answers match (ListPair.zip (vs, ps))
+								else NONE			
 	| (Constructor (s1, v), ConstructorP (s2,p)) => if s1 = s2
 														then match (v, p)
 														else NONE

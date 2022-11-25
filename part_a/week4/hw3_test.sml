@@ -50,6 +50,7 @@ val test10_more_not = check_pat (TupleP [Wildcard, (TupleP [Wildcard, Variable "
 
 val test11 = match (Const(1), UnitP) = NONE
 val test11_simplematch = match (Unit, UnitP) = SOME []
+val test_fail = match (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],TupleP[Wildcard,Wildcard]) = NONE
 
 val test12 = first_match Unit [UnitP] = SOME []
 val test12_notfirst = first_match Unit [ConstP(1), Variable("hi")] = SOME [("hi", Unit)]
