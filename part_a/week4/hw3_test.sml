@@ -56,3 +56,11 @@ val test12 = first_match Unit [UnitP] = SOME []
 val test12_notfirst = first_match Unit [ConstP(1), Variable("hi")] = SOME [("hi", Unit)]
 val test12_none = first_match Unit [ConstP(1)] = NONE
 
+val testchallenge = typecheck_patterns ([], [ConstP(10), Variable("a")]) = SOME IntT
+val testchallenge_fail = typecheck_patterns ([], [ConstP 10, Variable "a", ConstructorP("SOME",Variable "x")]) = NONE
+val testchallenge_3 = typecheck_patterns ([], [TupleP [Variable("a"), ConstP(10), Wildcard], TupleP [Variable("b"), Wildcard, ConstP(11)], Wildcard]) = SOME (TupleT[Anything,IntT,IntT])
+val testchallenge_datatype = typecheck_patterns ([("Red","color",UnitT),("Green","color",UnitT),("Blue","color",UnitT)], [ConstructorP("Red", UnitP), Wildcard]) = SOME (Datatype "color")
+val testchallenge_datatype2 = typecheck_patterns ([("Sedan","auto", Datatype "color"),("Truck","auto",TupleT[IntT, Datatype "color"]),("SUV","auto",UnitT)], [ConstructorP("Sedan", Variable "a"), ConstructorP("Truck", TupleP[Variable "b", Wildcard]), Wildcard]) = SOME (Datatype "auto")
+val testchallenge_datatype3 = typecheck_patterns ([("Empty","list",UnitT),("List","list",TupleT[Anything, Datatype "list"])], [ConstructorP("Empty",UnitP),ConstructorP("List",TupleP[ConstP 10, ConstructorP("Empty",UnitP)]), Wildcard]) = SOME (Datatype "list")
+
+val testchallenge_example = typecheck_patterns ([], [TupleP[Wildcard, Wildcard], TupleP[Wildcard, TupleP[Wildcard,Wildcard]]]) = SOME (TupleT[Anything, TupleT[Anything, Anything]])

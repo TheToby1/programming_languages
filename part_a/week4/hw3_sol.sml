@@ -148,3 +148,37 @@ fun match (v, p) =
 fun first_match v ps =
 	(SOME (first_answer match (ListPair.zip (List.tabulate ((List.length ps), (fn _ => v)), ps)))) 
 		handle NoAnswer => NONE
+
+fun typecheck_patterns (ts, ps) =
+	let 
+		fun first (x, _, _) = x
+		fun second (_, y, _) = y
+		fun third (_, _, z) = z
+		fun simplify (t1, t2) = 
+			case (t1, t2)
+			of (Anything, x) => x
+			| (x, Anything) => x
+			| (TupleT xs, TupleT ys) => TupleT (List.map simplify (ListPair.zip (xs,ys)))
+			| (x, y) => if x = y
+						then x
+						else raise NoAnswer
+
+		fun get_type p = 
+			case p 
+			of Wildcard => Anything
+			| Variable _ => Anything
+			| UnitP => UnitT
+			| ConstP _ => IntT
+			| TupleP ps => TupleT (List.map get_type ps)
+			| ConstructorP (s,p) => case (List.find (fn x => ((first x) = s)) ts)
+								of SOME x => Datatype (second x)
+								| NONE => raise NoAnswer
+		
+		fun simplify_all ts =
+			case ts
+			of [] => NONE
+			| t::[] => SOME t
+			| t1::(t2::ts') => simplify_all(simplify(t1,t2) :: ts')
+	in
+		simplify_all (List.map get_type ps) handle NoAnswer => NONE
+	end
