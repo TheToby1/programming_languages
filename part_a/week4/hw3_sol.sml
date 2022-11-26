@@ -158,7 +158,7 @@ fun typecheck_patterns (ts, ps) =
 			case (t1, t2)
 			of (Anything, x) => x
 			| (x, Anything) => x
-			| (TupleT xs, TupleT ys) => TupleT (List.map simplify (ListPair.zip (xs,ys)))
+			| (TupleT xs, TupleT ys) => TupleT (List.map simplify (ListPair.zipEq (xs,ys)))
 			| (x, y) => if x = y
 						then x
 						else raise NoAnswer
@@ -171,7 +171,10 @@ fun typecheck_patterns (ts, ps) =
 			| ConstP _ => IntT
 			| TupleP ps => TupleT (List.map get_type ps)
 			| ConstructorP (s,p) => case (List.find (fn x => ((first x) = s)) ts)
-								of SOME x => Datatype (second x)
+								(* I got lazy with this running simplify but not using the result, 
+								it was to fix an edge case of Constructor have the wrong type
+								I should rework it really rather than just raising NoAnswer *)
+								of SOME x => (simplify (third x, get_type p); Datatype (second x))
 								| NONE => raise NoAnswer
 		
 		fun simplify_all ts =
@@ -180,5 +183,5 @@ fun typecheck_patterns (ts, ps) =
 			| t::[] => SOME t
 			| t1::(t2::ts') => simplify_all(simplify(t1,t2) :: ts')
 	in
-		simplify_all (List.map get_type ps) handle NoAnswer => NONE
+		simplify_all (List.map get_type ps) handle _ => NONE
 	end
